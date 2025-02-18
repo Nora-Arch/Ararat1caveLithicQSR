@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#Goal of the script: This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the raw materials distrubution across the stratigraphical units of Ararat-1 Cave.
+#Goal of the script: This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the raw materials distrubution across the sedimentological units of Ararat-1 Cave.
 
 ## Load Packages
 ```{r warning=FALSE}
@@ -96,7 +96,7 @@ print(p)
 
 ## Save the Plot
 ```{r}
-ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\ P_RMU_Units.png", plot = p, width = 12, height = 8, dpi = 300, bg = 'white')
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\P_RMU_Units.png", plot = p, width = 12, height = 8, dpi = 300, bg = 'white')
 ```
 
 ----
