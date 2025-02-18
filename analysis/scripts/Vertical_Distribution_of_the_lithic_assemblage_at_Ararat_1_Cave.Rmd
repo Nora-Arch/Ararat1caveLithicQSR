@@ -19,14 +19,15 @@ library(readxl)
 library(cowplot)
 ```
 
-
-## Load and tidy the dataset
+## Load dataset
 ```{r warning=FALSE}
-# Load the dataset
-data_path <- note
+data_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
 
 Ararat_1_Cave <- read_excel(data_path)
+```
 
+## Tidy the dataset
+```{r warning=FALSE}
 # Ensure necessary columns are numeric; replace non-numeric values with NA
 Ararat_1_Cave <- Ararat_1_Cave %>%
   mutate(

@@ -1,0 +1,103 @@
+---
+title: "Ararat-1 Cave Raw Materials per Unit"
+author: "David Nora"
+date: "2024-11-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Goal of the script: This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the raw materials distrubution across the stratigraphical units of Ararat-1 Cave.
+
+## Load Packages
+```{r warning=FALSE}
+library(ggplot2)
+library(readxl)
+library(dplyr)
+```
+
+## Load the dataset
+```{r warning=FALSE}
+file_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+
+data <- read_excel(file_path)
+```
+
+## Define sorting order for RAWMAT
+```{r}
+sorting_order <- c(
+  "Gegham", "Geghasar", "Geghasar-ar54", "Geghasar-1", "Geghasar-2", "Hatis",
+  "Hatis alpha", "Hatis beta", "Hatis gamma", "Hatis delta", "Gutansar",
+  "Tsaghk-ar64", "Tsaghk-2-ar60", "Tsaghk-2 ttavakar", "Sevkar", "Satanakar",
+  "Tsaghk-1 kamakar", "Tsaghk-3 damlik", "Pokr arteni", "Pokr arteni-1",
+  "Pokr arteni-2", "Mets arteni", "Meydan-dag", "Sarikamis", "Obsidian",
+  "Limestone", "Silicified limestone", "Chert", "Chert (brown)", "Chert (green)",
+  "Chert (red)", "Calcedony", "Sandstone", "Quartzite", "Metamorphic rock",
+  "Basalt", "Mafic lava", "Other"
+)
+```
+
+## Convert factors
+```{r}
+data$RAWMAT <- factor(data$RAWMAT, levels = sorting_order)
+data$`Merged_UNITs` <- as.factor(data$`Merged_UNITs`)
+data$`Material Type` <- factor(data$`Material Type`, levels = c("Obsidian", "Non-Obsidian"))
+```
+
+##Remove NA
+```{r}
+data_clean <- data %>%
+  filter(!is.na(RAWMAT), !is.na(`Material Type`), !is.na(`Merged_UNITs`))
+```
+
+## Data Visualization
+```{r warning=FALSE}
+# Create a custom labeller function
+custom_labeller <- function(unit) {
+  paste("S.U", unit)
+}
+
+# Apply the custom labeller in facet_wrap
+p <- ggplot(data_clean, aes(x = RAWMAT, y = ..count.., fill = `Material Type`)) +
+  geom_bar(stat = "count", position = "dodge", width = 0.6) +
+  geom_text(
+    stat = "count", 
+    aes(label = ..count..), 
+    vjust = -0.5, 
+    position = position_dodge(width = 0.6), 
+    size = 3
+  ) +
+  labs(
+    title = "Distribution of Raw Materials per Unit",
+    x = "Raw Material",
+    y = "Count (N)",
+    fill = "Material Type"
+  ) +
+  facet_wrap(~`Merged_UNITs`, scales = "free_y", ncol = 1, labeller = labeller(`Merged_UNITs` = custom_labeller)) +  # Add custom labels
+  scale_y_continuous(expand = expansion(mult = c(0, 0.3))) +  # Add space above bars
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 12, angle = 90, vjust = 0.5, hjust = 1),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold"),
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
+    strip.text = element_text(size = 12, face = "bold"),  # Facet labels
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 12, face = "bold")
+  )
+
+# Print the plot
+print(p)
+
+```
+
+## Save the Plot
+```{r}
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\ P_RMU_Units.png", plot = p, width = 12, height = 8, dpi = 300, bg = 'white')
+```
+
+----
+End of Script
