@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #Goal of script: This script aims to show the vertical distribution of the lithic assemblage in a scatterplot visualization. In the same plot, we overstack the length and width of the morphological metric to understand if there is any first evidence of sorting throughout the stratigraphy. we also present an approximate size for each lithic and display it according to the bottom elevation (the contact of the sedimentary units).
 
-# Load necessary libraries
+## Load necessary libraries
 ```{r warning=FALSE}
 library(ggplot2)
 library(dplyr)
@@ -20,10 +20,11 @@ library(cowplot)
 ```
 
 
-# Load and tidy the dataset
+## Load and tidy the dataset
 ```{r warning=FALSE}
 # Load the dataset
-data_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat_1_cave_lithic_analysis\\Raw data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+data_path <- note
+
 Ararat_1_Cave <- read_excel(data_path)
 
 # Ensure necessary columns are numeric; replace non-numeric values with NA
@@ -55,8 +56,8 @@ filtered_Ararat_1_Cave <- Ararat_1_Cave %>%
   )
 ```
 
-#Plot 1: Bottom Elevation vs Morphological Length and Width
-```{r}
+## Plot 1: Bottom Elevation vs Morphological Length and Width
+```{r warning=FALSE}
 # Create separate datasets for Length and Width
 length_data <- filtered_Ararat_1_Cave %>%
   select(BOTTOMELEVATION, `MORPHOLOGICAL LENGTH`, `Material Type`) %>%
@@ -94,8 +95,8 @@ Plot1 <- ggplot(combined_data, aes(x = Metric, y = BOTTOMELEVATION, color = `Mat
 print(Plot1)
 ```
 
-#Plot 2: Bottom Elevation vs Approximate Size
-```{r}
+## Plot 2: Bottom Elevation vs Approximate Size
+```{r warning=FALSE}
 # Plot Approximate Size
 Plot2 <- ggplot(filtered_Ararat_1_Cave, aes(x = `Approximate Size`, y = BOTTOMELEVATION, color = `Material Type`)) +
   geom_point(alpha = 0.7) +
@@ -118,10 +119,10 @@ Plot2 <- ggplot(filtered_Ararat_1_Cave, aes(x = `Approximate Size`, y = BOTTOMEL
 print(Plot2)
 ```
 
-#Save Plots
+## Save Plots
 ```{r}
 # Save the plots
-ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived data\\Plot1_Bottom_Elevation)L_W.png", plot = Plot1, width = 8, height = 10, dpi = 300, bg = 'white')
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\Plot1_Bottom_Elevation)L_W.png", plot = Plot1, width = 8, height = 10, dpi = 300, bg = 'white')
 
-ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat_1_cave_lithic_analysis\\Derived data\\Plot2_Bottom_Elevation)app_size.png", plot = Plot2, width = 8, height = 10, dpi = 300, bg = 'white')
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\Plot2_Bottom_Elevation)L_W.png", plot = Plot2, width = 8, height = 10, dpi = 300, bg = 'white')
 ```
