@@ -1,0 +1,127 @@
+---
+title: "Vertical Distribution of the lithic assemblage at Ararat-1 Cave"
+author: "David Nora"
+date: "2024-11-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Goal of script: This script aims to show the vertical distribution of the lithic assemblage in a scatterplot visualization. In the same plot, we overstack the length and width of the morphological metric to understand if there is any first evidence of sorting throughout the stratigraphy. we also present an approximate size for each lithic and display it according to the bottom elevation (the contact of the sedimentary units).
+
+# Load necessary libraries
+```{r warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(readxl)
+library(cowplot)
+```
+
+
+# Load and tidy the dataset
+```{r warning=FALSE}
+# Load the dataset
+data_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat_1_cave_lithic_analysis\\Raw data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+Ararat_1_Cave <- read_excel(data_path)
+
+# Ensure necessary columns are numeric; replace non-numeric values with NA
+Ararat_1_Cave <- Ararat_1_Cave %>%
+  mutate(
+    BOTTOMELEVATION = as.numeric(BOTTOMELEVATION),
+    `MORPHOLOGICAL LENGTH` = as.numeric(`MORPHOLOGICAL LENGTH`),
+    `MORPHOLOGICAL WIDTH` = as.numeric(`MORPHOLOGICAL WIDTH`)
+  )
+
+# Clean and standardize Material.Type
+Ararat_1_Cave$`Material Type` <- Ararat_1_Cave$`Material Type` %>%
+  trimws() %>%               # Remove leading and trailing spaces
+  tolower() %>%              # Convert to lowercase
+  tools::toTitleCase()       # Capitalize first letters
+
+# Filter and process data
+filtered_Ararat_1_Cave <- Ararat_1_Cave %>%
+  filter(
+    !is.na(BOTTOMELEVATION) &
+    !is.na(`MORPHOLOGICAL LENGTH`) &
+    !is.na(`MORPHOLOGICAL WIDTH`) &
+    `MORPHOLOGICAL LENGTH` > 0 &
+    `MORPHOLOGICAL WIDTH` > 0
+  ) %>%
+  mutate(
+    `Approximate Size` = `MORPHOLOGICAL LENGTH` * `MORPHOLOGICAL WIDTH`,
+    `Material Type` = ifelse(`Material Type` == "Obsidian", "Obsidian", "Non-Obsidian")
+  )
+```
+
+#Plot 1: Bottom Elevation vs Morphological Length and Width
+```{r}
+# Create separate datasets for Length and Width
+length_data <- filtered_Ararat_1_Cave %>%
+  select(BOTTOMELEVATION, `MORPHOLOGICAL LENGTH`, `Material Type`) %>%
+  rename(Metric = `MORPHOLOGICAL LENGTH`) %>%
+  mutate(Measurement = "Length")
+
+width_data <- filtered_Ararat_1_Cave %>%
+  select(BOTTOMELEVATION, `MORPHOLOGICAL WIDTH`, `Material Type`) %>%
+  rename(Metric = `MORPHOLOGICAL WIDTH`) %>%
+  mutate(Measurement = "Width")
+
+# Combine length and width datasets for plotting
+combined_data <- bind_rows(length_data, width_data)
+
+# Plot
+Plot1 <- ggplot(combined_data, aes(x = Metric, y = BOTTOMELEVATION, color = `Material Type`, shape = Measurement)) +
+  geom_point(alpha = 0.8) +
+  scale_y_continuous(limits = c(97.80, 100.10), breaks = seq(97.80, 100.10, by = 0.10)) +
+  labs(
+    title = "Bottom Elevation by Morphological Length and Width (10 cm Intervals)",
+    x = "Morphological Measurements (Length and Width) in mm",
+    y = "Bottom Elevation (m)",
+    color = "Material Type",
+    shape = "Measurement Type"
+  ) +
+  theme_minimal() +
+  theme(
+  axis.text.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 12, face = "bold"),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 14),
+    legend.title = element_text(size = 16, face = "bold"),
+)
+print(Plot1)
+```
+
+#Plot 2: Bottom Elevation vs Approximate Size
+```{r}
+# Plot Approximate Size
+Plot2 <- ggplot(filtered_Ararat_1_Cave, aes(x = `Approximate Size`, y = BOTTOMELEVATION, color = `Material Type`)) +
+  geom_point(alpha = 0.7) +
+  scale_y_continuous(limits = c(97.80, 100.10), breaks = seq(97.80, 100.10, by = 0.10)) +
+  labs(
+    title = "Bottom Elevation by Approximate Area (Separated by Material)",
+    x = "Approximate Size (Length x Width) in mm²",
+    y = "Bottom Elevation (m)",
+    color = "Material Type"
+  ) +
+  theme_minimal() +
+  theme(
+  axis.text.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 12, face = "bold"),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 14),
+    legend.title = element_text(size = 16, face = "bold"),
+)
+print(Plot2)
+```
+
+#Save Plots
+```{r}
+# Save the plots
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived data\\Plot1_Bottom_Elevation)L_W.png", plot = Plot1, width = 8, height = 10, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat_1_cave_lithic_analysis\\Derived data\\Plot2_Bottom_Elevation)app_size.png", plot = Plot2, width = 8, height = 10, dpi = 300, bg = 'white')
+```
