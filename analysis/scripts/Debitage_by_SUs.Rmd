@@ -1,0 +1,185 @@
+---
+title: "Debitage per Sedimentary Units in percentages"
+author: "David Nora"
+date: "2024-11-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Goal of the script: This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the debitage per SU in percentages of the artefacts at Ararat-1 Cave.
+
+
+## Load the Packages
+```{r warning=FALSE}
+
+library(ggplot2)
+library(dplyr)
+library(readxl)
+library(tidyr)
+```
+
+## Load the dataset
+```{r warning=FALSE}
+Ararat_1_Cave <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+Ararat_1_Cave <- read_excel(Ararat_1_Cave)
+```
+
+## Define sorting order for debitage types
+```{r}
+sorting_order <- c("Core", "Core on flake", "Flake", "Flake<5mm", "Blade", "Bladelet", 
+                   "Kombewa", "Debordant", "Siret", "Core trimming element", 
+                   "Burin spall", "Chunk", "Pebble")
+
+Ararat_1_Cave$DEBITAGE <- factor(Ararat_1_Cave$DEBITAGE, levels = sorting_order)
+Ararat_1_Cave$`Material Type` <- factor(Ararat_1_Cave$`Material Type`, levels = c("Obsidian", "Non-Obsidian"))
+```
+
+## Filter for MergedUnit_0 to MergedUnit_4
+```{r}
+Ararat_1_Cave_Unit0 <- filter(Ararat_1_Cave, Merged_UNITs == "0")
+Ararat_1_Cave_Unit1 <- filter(Ararat_1_Cave, Merged_UNITs == "1")
+Ararat_1_Cave_Unit2 <- filter(Ararat_1_Cave, Merged_UNITs == "2")
+Ararat_1_Cave_Unit3 <- filter(Ararat_1_Cave, Merged_UNITs == "3")
+Ararat_1_Cave_Unit4 <- filter(Ararat_1_Cave, Merged_UNITs == "4")
+```
+
+## Calculate Percentages for Each Subset
+```{r}
+# Recalculate for Unit 0
+grouped_Unit0 <- Ararat_1_Cave_Unit0 %>%
+  group_by(DEBITAGE, `Material Type`) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Total = sum(Count), Percentage = (Count / Total) * 100) %>%
+  ungroup() %>%
+  select(DEBITAGE, `Material Type`, Percentage)
+
+# Recalculate for Unit 1
+grouped_Unit1 <- Ararat_1_Cave_Unit1 %>%
+  group_by(DEBITAGE, `Material Type`) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Total = sum(Count), Percentage = (Count / Total) * 100) %>%
+  ungroup() %>%
+  select(DEBITAGE, `Material Type`, Percentage)
+
+# Recalculate for Unit 2
+grouped_Unit2 <- Ararat_1_Cave_Unit2 %>%
+  group_by(DEBITAGE, `Material Type`) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Total = sum(Count), Percentage = (Count / Total) * 100) %>%
+  ungroup() %>%
+  select(DEBITAGE, `Material Type`, Percentage)
+
+# Recalculate for Unit 3
+grouped_Unit3 <- Ararat_1_Cave_Unit3 %>%
+  group_by(DEBITAGE, `Material Type`) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Total = sum(Count), Percentage = (Count / Total) * 100) %>%
+  ungroup() %>%
+  select(DEBITAGE, `Material Type`, Percentage)
+
+# Recalculate for Unit 4
+grouped_Unit4 <- Ararat_1_Cave_Unit4 %>%
+  group_by(DEBITAGE, `Material Type`) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Total = sum(Count), Percentage = (Count / Total) * 100) %>%
+  ungroup() %>%
+  select(DEBITAGE, `Material Type`, Percentage)
+```
+
+## Plot for Each Subset
+```{r}
+# Plot for Unit 0
+plot_Unit0 <- ggplot(grouped_Unit0, aes(x = Percentage, y = DEBITAGE, fill = `Material Type`)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 1)) +
+  geom_text(aes(label = sprintf("%.1f%%", Percentage)), position = position_dodge(width = 1), hjust = 0, vjust = 0.5) +
+  labs(x = "Debitage Type", y = "Percentage", title = "Percentage of Debitage by Material Type in MergedUnit_0") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold"),
+    axis.text.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 12, face = "bold")
+  ) +
+  scale_fill_brewer(palette = "Set1")
+
+# Plot for Unit 1
+plot_Unit1 <- ggplot(grouped_Unit1, aes(x = Percentage, y = DEBITAGE, fill = `Material Type`)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 1)) +
+  geom_text(aes(label = sprintf("%.1f%%", Percentage)), position = position_dodge(width = 1), hjust = 0, vjust = 0.5) +
+  labs(x = "Debitage Type", y = "Percentage", title = "Percentage of Debitage by Material Type in MergedUnit_1") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold"),
+    axis.text.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 12, face = "bold")
+  ) +
+  scale_fill_brewer(palette = "Set1")
+
+# Plot for Unit 2
+plot_Unit2 <- ggplot(grouped_Unit2, aes(x = Percentage, y = DEBITAGE, fill = `Material Type`)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 1)) +
+  geom_text(aes(label = sprintf("%.1f%%", Percentage)), position = position_dodge(width = 1), hjust = 0, vjust = 0.5) +
+  labs(x = "Debitage Type", y = "Percentage", title = "Percentage of Debitage by Material Type in MergedUnit_2") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold"),
+    axis.text.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 12, face = "bold")
+  ) +
+  scale_fill_brewer(palette = "Set1")
+
+# Plot for Unit 3
+plot_Unit3 <- ggplot(grouped_Unit3, aes(x = Percentage, y = DEBITAGE, fill = `Material Type`)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 1)) +
+  geom_text(aes(label = sprintf("%.1f%%", Percentage)), position = position_dodge(width = 1), hjust = 0, vjust = 0.5) +
+  labs(x = "Debitage Type", y = "Percentage", title = "Percentage of Debitage by Material Type in MergedUnit_3") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold"),
+    axis.text.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 12, face = "bold")
+  ) +
+  scale_fill_brewer(palette = "Set1")
+
+# Plot for Unit 4
+plot_Unit4 <- ggplot(grouped_Unit4, aes(x = Percentage, y = DEBITAGE, fill = `Material Type`)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 1)) +
+  geom_text(aes(label = sprintf("%.1f%%", Percentage)), position = position_dodge(width = 1), hjust = 0, vjust = 0.5) +
+  labs(x = "Debitage Type", y = "Percentage", title = "Percentage of Debitage by Material Type in MergedUnit_4") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold"),
+    axis.text.x = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 12, face = "bold")
+  ) +
+  scale_fill_brewer(palette = "Set1")
+
+# Print the plots
+print(plot_Unit0)
+print(plot_Unit1)
+print(plot_Unit2)
+print(plot_Unit3)
+print(plot_Unit4)
+```
+
+## Save the plots
+```{r}
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\unit0_debitage_percentages.png", plot = plot_Unit0, width = 15, height = 10, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\unit1_debitage_percentages.png", plot = plot_Unit1, width = 15, height = 10, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\unit2_debitage_percentages.png", plot = plot_Unit2, width = 15, height = 10, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\unit3_debitage_percentages.png", plot = plot_Unit3, width = 15, height = 10, dpi = 300, bg = 'white')
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\unit4_debitage_percentages.png", plot = plot_Unit4, width = 15, height = 10, dpi = 300, bg = 'white')
+```
+
+---
+End of the script
