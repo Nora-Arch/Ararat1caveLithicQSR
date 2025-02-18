@@ -1,0 +1,91 @@
+---
+title: "Ararat-1 Cave Debitage per Units"
+author: "David Nora"
+date: "2024-11-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Goal of the script: This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the debitage distrubution across the sedimentological units of Ararat-1 Cave.
+
+## Load Packages
+```{r warning=FALSE}
+library(ggplot2)
+library(readxl)
+library(dplyr)
+library(RColorBrewer)
+```
+
+# Load the dataset
+```{r warning=FALSE}
+data_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+data <- read_excel(data_path)
+```
+
+## Define sorting order for debitage types
+```{r}
+sorting_order <- c("Core", "Core on flake", "Flake", "Flake<5mm", "Blade", "Bladelet", 
+                   "Kombewa", "Debordant", "Siret", "Core trimming element", 
+                   "Burin spall", "Chunk", "Pebble")
+
+data$DEBITAGE <- factor(data$DEBITAGE, levels = sorting_order)
+data$`Merged_UNITs` <- as.factor(data$`Merged_UNITs`)
+```
+
+
+## Aggregate data to count Debitage types within each Merged_UNITs
+```{r}
+data_summary <- data %>%
+  group_by(Merged_UNITs, DEBITAGE) %>%
+  summarise(Count = n(), .groups = 'drop')
+
+# View the first few rows of the summarized data
+print(head(data_summary))
+```
+
+# Generate more colors from the 'Paired' palette
+```{r}
+palette_extended <- colorRampPalette(brewer.pal(12, "Paired"))
+
+# Assuming you have more than 12 categories, determine the number you need
+n_debitage_types <- length(unique(data_summary$DEBITAGE))
+extended_colors <- palette_extended(n_debitage_types)
+```
+
+# Plotting
+```{r}
+# Remove rows with NA values in relevant columns
+data_clean <- data_summary %>%
+  filter(!is.na(DEBITAGE), !is.na(`Merged_UNITs`))
+
+Debitage_Units_Plot <-ggplot(data_clean, aes(x = Merged_UNITs, y = Count, fill = DEBITAGE)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 1)) +
+  geom_text(aes(label = Count), size = 7, vjust = -0.5, position = position_dodge(width = 1)) +
+  labs(title = "Debitage Counts per Merged Units", x = "Merged Units", y = "Count (N)") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 18, angle = 0, vjust = 0.5, hjust = 1, face = "bold"),
+    axis.text.y = element_text(size = 18, face = "bold"),
+    axis.title.x = element_text(size = 14, face = "bold"),
+    axis.title.y = element_text(size = 14, face = "bold"),
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
+    strip.text = element_text(size = 14, face = "bold"),  # Facet labels
+    legend.text = element_text(size = 20),
+    legend.title = element_text(size = 18, face = "bold"),
+  ) +
+  scale_fill_manual(values = extended_colors)
+
+# Print the plot to check it
+print(Debitage_Units_Plot)
+```
+
+## Save the plot
+```{r}
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\Debitage_Per_Merged_Units.png", plot = Debitage_Units_Plot, width = 25, height = 10, dpi = 300, bg = "white")
+```
+---
+
+End of the Script
