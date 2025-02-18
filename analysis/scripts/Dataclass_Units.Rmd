@@ -1,0 +1,137 @@
+---
+title: "Dataclass_per Units"
+author: "David Nora"
+date: "2024-11-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Goal of the script: This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the preservation of the artefacts across the sedimentological units of Ararat-1 Cave.
+
+## Load necessary libraries
+```{r warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(readxl)
+```
+
+## Load the dataset
+```{r warning=FALSE}
+file_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+
+data <- read_excel(file_path)
+```
+
+## Remove rows with NA values
+```{r}
+data_cleaned <- data %>%
+  filter(
+    !is.na(DATACLASS),
+    !is.na(DEBITAGE),
+    !is.na(Merged_UNITs)
+  )
+```
+
+## Apply sorting order for DEBITAGE and Material Type
+```{r}
+sorting_order <- c(
+  "Core", "Core on flake", "Flake", "Flake<5mm", "Blade", "Bladelet", 
+  "Kombewa", "Debordant", "Siret", "Core trimming element", 
+  "Burin spall", "Chunk", "Pebble"
+)
+
+data_cleaned$DEBITAGE <- factor(data_cleaned$DEBITAGE, levels = sorting_order)
+data_cleaned$`Material Type` <- factor(data_cleaned$`Material Type`, levels = c("Obsidian", "Non-Obsidian"))
+```
+
+##  Percentages for DATACLASS within each Merged_UNITs
+```{r}
+dataclass_table <- data_cleaned %>%
+  group_by(Merged_UNITs, DATACLASS) %>%
+  summarise(Frequency = n(), .groups = "drop") %>%
+  group_by(Merged_UNITs) %>%
+  mutate(Percentage = (Frequency / sum(Frequency)) * 100) %>%
+  arrange(Merged_UNITs, desc(Percentage))
+
+# Calculate percentages for DEBITAGE and DATACLASS combinations within each Merged_UNITs
+debitage_dataclass_table <- data_cleaned %>%
+  group_by(Merged_UNITs, DEBITAGE, DATACLASS) %>%
+  summarise(Frequency = n(), .groups = "drop") %>%
+  group_by(Merged_UNITs, DEBITAGE) %>%
+  mutate(Percentage = (Frequency / sum(Frequency)) * 100) %>%
+  arrange(Merged_UNITs, DEBITAGE, desc(Percentage))
+
+# Display and Save the Tables
+print("Percentage Distribution of DATACLASS for Each Merged_UNITs:")
+print(dataclass_table)
+
+print("Percentage Distribution of DEBITAGE and DATACLASS for Each Merged_UNITs:")
+print(debitage_dataclass_table)
+
+# Save tables as CSV files
+write.csv(dataclass_table, "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat_1_cave_lithic_analysis\\Derived data\\dataclass_percentage_table.csv", row.names = FALSE)
+write.csv(debitage_dataclass_table, "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat_1_cave_lithic_analysis\\Derived data\\debitage_dataclass_percentage_table.csv", row.names = FALSE)
+```
+
+## Generate and Save Plots for Each Merged_UNITs
+```{r}
+unique_units <- unique(data_cleaned$Merged_UNITs)
+
+# Loop to create and save DATACLASS percentage plots for each Merged_UNITs
+for (unit in unique_units) {
+  # Filter data for the current unit
+  unit_data <- dataclass_table %>% filter(Merged_UNITs == unit)
+
+# Create the plot
+  dataclass_plot <- ggplot(unit_data, aes(x = DATACLASS, y = Percentage)) +
+    geom_bar(stat = "identity") +
+    labs(
+      title = paste("DATACLASS Percentages for Merged_UNITs:", unit),
+      x = "DATACLASS",
+      y = "Percentage (%)"
+    ) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 14)
+    )
+  
+  # Print the plot
+  print(dataclass_plot)
+  
+  # Save the plot
+  ggsave(paste0("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\dataclass_plot_", unit, ".png"), plot = dataclass_plot, width = 10, height = 8, dpi = 300)
+}
+
+# Loop to create and save DEBITAGE-DATACLASS percentage plots for each Merged_UNITs
+for (unit in unique_units) {
+  # Filter data for the current unit
+  unit_data <- debitage_dataclass_table %>% filter(Merged_UNITs == unit)
+  
+  # Create the plot
+  debitage_dataclass_plot <- ggplot(unit_data, aes(x = DEBITAGE, y = Percentage, fill = DATACLASS)) +
+    geom_bar(stat = "identity", position = position_dodge()) +
+    labs(
+      title = paste("DEBITAGE and DATACLASS Percentages for Merged_UNITs:", unit),
+      x = "DATACLASS",
+      y = "Percentage (%)"
+    ) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 14)
+    )
+  
+  # Print the plot
+  print(debitage_dataclass_plot)
+
+  # Save the plot
+  ggsave(paste0("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\debitage_dataclass_plot_", unit, ".png"), plot = debitage_dataclass_plot, width = 10, height = 8, bg = "white", dpi = 300)
+}
+```
+
+--- 
+End of the Script
