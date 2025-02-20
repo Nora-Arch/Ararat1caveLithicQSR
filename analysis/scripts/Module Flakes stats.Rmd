@@ -1,0 +1,170 @@
+---
+title: "Module Flakes stats"
+author: "David Nora"
+date: "2025-01-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Goal of the script:This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the metrics technological length and width and thickness on module flakes categories for each sedimentological units at Ararat-1 Cave.
+
+## Load Packages
+```{r warning=FALSE}
+library(R.utils)
+library(ggplot2)
+library(tidyverse)
+library(ggpubr)
+```
+
+## Load Dataset and Remove NA
+```{r warning=FALSE}
+Ararat_1 <- readxl::read_excel("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx") %>%
+  filter(
+    !is.na(`MODULE OF RETOUCH`) & 
+    !is.na(`TECHNOLOGICAL LENGTH`) & 
+    !is.na(`TECHNOLOGICAL WIDTH`) & 
+    !is.na(THICKNESS) & 
+    !is.na(`Merged_UNITs`)
+  )
+```
+
+## Define Custom Colors for Modules
+```{r}
+module_colors <- c("blue", "red", "gold", "green", "grey")
+names(module_colors) <- c("Module 0", "Module 1", "Module 2", "Module 3", "Module 4")
+```
+
+## Summary Statistics Function by Module
+```{r}
+compute_summary_stats_FM <- function(data) {
+  data %>%
+    group_by(`MODULE OF RETOUCH`) %>%
+    summarise(
+      Mean_Length = mean(`TECHNOLOGICAL LENGTH`, na.rm = TRUE),
+      SD_Length = sd(`TECHNOLOGICAL LENGTH`, na.rm = TRUE),
+      Median_Length = median(`TECHNOLOGICAL LENGTH`, na.rm = TRUE),
+      Min_Length = min(`TECHNOLOGICAL LENGTH`, na.rm = TRUE),
+      Max_Length = max(`TECHNOLOGICAL LENGTH`, na.rm = TRUE),
+      
+      Mean_Width = mean(`TECHNOLOGICAL WIDTH`, na.rm = TRUE),
+      SD_Width = sd(`TECHNOLOGICAL WIDTH`, na.rm = TRUE),
+      Median_Width = median(`TECHNOLOGICAL WIDTH`, na.rm = TRUE),
+      Min_Width = min(`TECHNOLOGICAL WIDTH`, na.rm = TRUE),
+      Max_Width = max(`TECHNOLOGICAL WIDTH`, na.rm = TRUE),
+      
+      Mean_Thickness = mean(THICKNESS, na.rm = TRUE),
+      SD_Thickness = sd(THICKNESS, na.rm = TRUE),
+      Median_Thickness = median(THICKNESS, na.rm = TRUE),
+      Min_Thickness = min(THICKNESS, na.rm = TRUE),
+      Max_Thickness = max(THICKNESS, na.rm = TRUE)
+    )
+}
+```
+
+## Run the Function for the Dataset
+```{r}
+summary_stats_FM_Ara_1 <- compute_summary_stats_FM(Ararat_1)
+
+# Print the Summary
+print(summary_stats_FM_Ara_1)
+```
+
+## Reshape Dataset into Long Format
+```{r}
+reshape_data <- function(data) {
+  data %>%
+    pivot_longer(
+      cols = c(`TECHNOLOGICAL LENGTH`, `TECHNOLOGICAL WIDTH`, `THICKNESS`),
+      names_to = "Variable",
+      values_to = "Value"
+    ) %>%
+    mutate(Variable = recode(Variable,
+                             "TECHNOLOGICAL LENGTH" = "TL",
+                             "TECHNOLOGICAL WIDTH"  = "TW",
+                             "THICKNESS"            = "TH"))
+}
+
+Ararat_1_Cave_long <- reshape_data(Ararat_1)
+```
+
+## Create the function for each SU and combined SU's
+```{r}
+# Function to create a faceted boxplot for a single unit
+create_faceted_boxplot_per_unit <- function(data, unit, dataset_name) {
+  ggplot(data %>% filter(`Merged_UNITs` == unit), 
+         aes(x = Variable, y = Value, color = `MODULE OF RETOUCH`)) +
+    geom_jitter(aes(group = interaction(Variable, `MODULE OF RETOUCH`)), 
+                width = 0.15, size = 1, alpha = 0.5, show.legend = FALSE) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.7, fill = "white") +
+    labs(
+      title = paste("Boxplots of Metrics by Module - Unit:", unit, "-", dataset_name),
+      x = "Metric",
+      y = "Value (mm)"
+    ) +
+    ylim(0, 30) +
+    facet_wrap(~ `MODULE OF RETOUCH`, nrow = 1) +  # Arrange facets in one row (side by side)
+    theme_minimal() +
+    theme(
+      legend.text  = element_text(size = 14),
+      legend.title = element_text(size = 16),
+      axis.title.x = element_text(size = 14, face = "bold"),
+      axis.text.x  = element_text(size = 10, face = "bold"),
+      axis.title.y = element_text(size = 14, face = "bold"),
+      axis.text.y  = element_text(size = 14, face = "bold")
+    ) +
+    scale_color_manual(values = module_colors)
+}
+
+# Function to create a faceted boxplot using all data (no unit filtering)
+create_faceted_boxplot_all_data <- function(data, dataset_name) {
+  ggplot(data, aes(x = Variable, y = Value, color = `MODULE OF RETOUCH`)) +
+    geom_jitter(aes(group = interaction(Variable, `MODULE OF RETOUCH`)), 
+                width = 0.15, size = 1, alpha = 0.5, show.legend = FALSE) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.7, fill = "white") +
+    labs(
+      title = paste("Boxplots of Metrics by Module - All Data Combined -", dataset_name),
+      x = "Metric",
+      y = "Value (mm)"
+    ) +
+    ylim(0, 30) +
+    facet_wrap(~ `MODULE OF RETOUCH`, nrow = 1) +  # Arrange facets in one row (side by side)
+    theme_minimal() +
+    theme(
+      legend.text  = element_text(size = 14),
+      legend.title = element_text(size = 16),
+      axis.title.x = element_text(size = 14, face = "bold"),
+      axis.text.x  = element_text(size = 10, face = "bold"),
+      axis.title.y = element_text(size = 14, face = "bold"),
+      axis.text.y  = element_text(size = 14, face = "bold")
+    ) +
+    scale_color_manual(values = module_colors)
+}
+```
+
+## Plot and Save
+```{r}
+for (unit in unique(Ararat_1_Cave_long$`Merged_UNITs`)) {
+  plot <- create_faceted_boxplot_per_unit(Ararat_1_Cave_long, unit, "Ararat_1_Cave")
+  print(plot)
+  ggsave(
+    filename = paste0(
+      "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\Combined_Faceted_Boxplot_By_Unit_", 
+      unit, "_Ararat_1_Cave.png"
+    ),
+    plot = plot, width = 12, height = 8, dpi = 300, bg = "white"
+  )
+}
+
+combined_all_data_plot <- create_faceted_boxplot_all_data(Ararat_1_Cave_long, "Ararat_1_Cave")
+print(combined_all_data_plot)
+ggsave(
+  filename = "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\Combined_Faceted_Boxplot_All_Data_Ararat_1_Cave.png",
+  plot = combined_all_data_plot, width = 12, height = 8, dpi = 300, bg = "white"
+)
+
+```
+---
+End of the script
