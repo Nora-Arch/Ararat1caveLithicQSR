@@ -1,0 +1,129 @@
+---
+title: "Debitage Technology"
+author: "David Nora"
+date: "2024-11-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Goal of the script: This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the debitage technology per sedimentological units in counts of the artefacts at Ararat-1 Cave.
+
+#Load Packages
+```{r warning=FALSE}
+library(ggplot2)
+library(readxl)
+library(dplyr)
+library(RColorBrewer)
+```
+
+# Load the dataset
+```{r warning=FALSE}
+Ararat_1_Cave <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+Ararat_1_Cave <- read_excel(Ararat_1_Cave)
+```
+
+```{r}
+# Filter out NA values in the TECHNOLOGY column
+Ararat_1_Cave <- Ararat_1_Cave %>%
+  filter(!is.na(TECHNOLOGY))
+```
+
+```{r}
+# Reorder the debitage types according to your specified order
+sorting_order <- c("Core", "Core on flake", "Flake", "Flake<5mm", "Blade", "Bladelet", 
+                   "Kombewa", "Debordant", "Siret", "Core trimming element", 
+                   "Burin spall", "Chunk", "Pebble")
+
+Ararat_1_Cave$DEBITAGE <- factor(Ararat_1_Cave$DEBITAGE, levels = sorting_order)
+Ararat_1_Cave$`Material Type` <- factor(Ararat_1_Cave$`Material Type`, levels = c("Obsidian", "Non-Obsidian"))
+Ararat_1_Cave$TECHNOLOGY <- as.factor(Ararat_1_Cave$TECHNOLOGY)
+Ararat_1_Cave$Merged_UNITs <- factor(Ararat_1_Cave$Merged_UNITs)
+```
+
+```{r}
+# Identify all unique technology types
+all_technologies <- unique(Ararat_1_Cave$TECHNOLOGY)
+
+# Create a color palette with a distinct color for each technology
+# Using RColorBrewer's Set1 palette as a base, extend it if there are more technologies than available colors
+library(RColorBrewer)
+number_of_colors <- length(all_technologies)
+palette_colors <- colorRampPalette(brewer.pal(min(8, number_of_colors), "Set1"))(number_of_colors)
+
+# Assign colors to each technology
+technology_colors <- setNames(palette_colors, all_technologies)
+```
+
+```{r}
+# Generate plots for each Merged Unit and Material Type
+plots <- list()
+for (unit in unique(Ararat_1_Cave$Merged_UNITs)) {
+  for (material in unique(Ararat_1_Cave$`Material Type`)) {
+    subset_data <- Ararat_1_Cave %>%
+      filter(Merged_UNITs == unit, `Material Type` == material) %>%
+      group_by(TECHNOLOGY, DEBITAGE) %>%
+      summarise(Count = n(), .groups = 'drop') %>%
+      arrange(TECHNOLOGY)
+
+    # Plot
+    plot_title <- paste(material, "in Unit", unit, ": Counts of Debitage per Technology")
+    plots[[paste(unit, material)]] <- ggplot(subset_data, aes(x = Count, y = DEBITAGE, fill = TECHNOLOGY)) +
+      geom_bar(stat = "identity", position = position_dodge()) +  # Ensure bars are side-by-side for different technologies
+      geom_text(aes(label = Count), size = 5, vjust = 0, hjust = -0.5, position = position_dodge(width = 0.9)) +  # Correctly positioned labels
+      labs(title = plot_title, x = "Count (N)", y = "Debitage") +
+      scale_x_continuous(limits = c(0, 225)) + 
+      theme_minimal() +
+      theme(
+        axis.text.x   = element_text(size = 12, face = "bold", angle = 0, hjust = 1),
+        axis.title.x  = element_text(size = 16),
+        axis.text.y   = element_text(size = 14, face = "bold"),
+        axis.title.y  = element_text(size = 16),
+        legend.text   = element_text(size = 16),
+        legend.title = element_text(size = 18)
+      ) +
+      scale_fill_manual(values = technology_colors)  # Apply the fixed color palette
+  }
+}
+```
+
+```{r}
+print(plots[["0 Obsidian"]])
+print(plots[["0 Non-Obsidian"]])
+print(plots[["1 Obsidian"]])
+print(plots[["1 Non-Obsidian"]])
+print(plots[["2 Obsidian"]])
+print(plots[["2 Non-Obsidian"]])
+print(plots[["3 Obsidian"]])
+print(plots[["3 Non-Obsidian"]])
+print(plots[["4 Obsidian"]])
+print(plots[["4 Non-Obsidian"]])
+```
+
+```{r}
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\plot_0_Obsidian.png0_debitage_.png", plot = plots[["0 Obsidian"]], width = 10, height = 5, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\plot_0_Non_Obsidian.png0_debitage_.png", plot = plots[["0 Non-Obsidian"]], width = 10, height = 5, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\plot_1_Obsidian.png0_debitage_.png", plot = plots[["1 Obsidian"]], width = 10, height = 5, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\plot_1_Non_Obsidian.png0_debitage_.png", plot = plots[["1 Non-Obsidian"]], width = 10, height = 5, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\plot_2_Obsidian.png0_debitage_.png", plot = plots[["2 Obsidian"]], width = 10, height = 5, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\plot_2_Non_Obsidian.png0_debitage_.png", plot = plots[["2 Non-Obsidian"]], width = 10, height = 5, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\plot_3_Obsidian.png0_debitage_.png", plot = plots[["3 Obsidian"]], width = 10, height = 5, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\plot_3_Non_Obsidian.png0_debitage_.png", plot = plots[["3 Non-Obsidian"]], width = 15, height = 5, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\plot_4_Obsidian.png0_debitage_.png", plot = plots[["4 Obsidian"]], width = 15, height = 5, dpi = 300, bg = 'white')
+
+ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\plot_4_Non_Obsidian.png0_debitage_.png", plot = plots[["4 Non-Obsidian"]], width = 15, height = 5, dpi = 300, bg = 'white')
+
+```
+
+---
+End of the Script
