@@ -1,0 +1,105 @@
+---
+title: "Debitage and Cortex Analysis per Unit"
+author: "David Nora"
+date: "2024-11-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+#Goal of the script: This script is part of the paper “The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave”.This script analyzes the relationship between **Debitage** and **Cortex** by generating two heatmaps for each Sedimentological Unit:
+1. A **general heatmap** of debitage types in relation to cortex percentage.
+2. A **filtered heatmap** for specific chert types analyzing debitage types in relation to cortex location.
+
+## Load Required Libraries
+```{r warning=FALSE}
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(reshape2)
+```
+
+## Load the Dataset
+```{r warning=FALSE}
+file_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+data <- read_excel(file_path)
+```
+
+# **Generate Heatmaps for Each Unit**
+```{r}
+units <- unique(data$Merged_UNITs)
+output_dir <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\"
+
+for (unit in units) {
+  unit_data <- data %>% filter(Merged_UNITs == unit)
+  
+  ## Ensure 'CORTEX' is a categorical variable
+  cortex_levels <- c("0", "1-25", "26-50", "51-75", "76-99", "100")
+  unit_data$CORTEX <- factor(unit_data$CORTEX, levels = cortex_levels)
+  
+  ## Create a table for DEBITAGE and CORTEX
+  debitage_cortex_table <- table(unit_data$DEBITAGE, unit_data$CORTEX)
+  
+  ## Convert the table into a properly formatted data frame
+  debitage_cortex_df <- as.data.frame(debitage_cortex_table)  
+  colnames(debitage_cortex_df) <- c("Debitage", "Cortex", "Count")
+  
+  ## Define the custom order for DEBITAGE categories
+  custom_order <- c("Core", "Core on flake", "Flake", "Flake<5mm", "Blade", 
+                    "Bladelet", "Kombewa", "Debordant", "Siret", 
+                    "Core trimming element", "Burin spall", "Chunk", "Pebble")
+  debitage_cortex_df$Debitage <- factor(debitage_cortex_df$Debitage, levels = custom_order)
+  
+  ## Plot Heatmap with Blue Gradient and Text Labels
+  plot1 <- ggplot(debitage_cortex_df, aes(x = Cortex, y = Debitage, fill = Count)) + 
+    geom_tile(color = "white") +
+    geom_text(aes(label = Count), color = "black", size = 4) +
+    scale_fill_gradient(low = "white", high = "blue") +
+    theme_minimal() +
+    labs(title = paste("Heatmap of Debitage in Relation to Cortex Percentage - Unit", unit),
+         x = "Cortex (%)",
+         y = "Debitage Type") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  ## Print and Save Heatmap
+  print(plot1)
+  ggsave(filename = paste0(output_dir, "Unit_", unit, "_Debitage_Cortex_Heatmap.png"), plot = plot1, width = 10, height = 7, bg = 'white')
+  
+  ## Filter Data for Specific Chert Types
+  unit_data_filtered <- unit_data %>%
+    select(RAWMAT, `LOCATION OF CORTEX`, DEBITAGE) %>%
+    filter(RAWMAT %in% c("Chert", "Chert (brown)", "Chert (green)")) %>%
+    drop_na()
+  
+  ## Count occurrences of each DEBITAGE and LOCATION OF CORTEX combination
+  heatmap_data <- unit_data_filtered %>%
+    group_by(DEBITAGE, `LOCATION OF CORTEX`) %>%
+    summarise(Count = n(), .groups = 'drop')
+  
+  ## Define Custom Order for DEBITAGE Categories
+  debitage_order <- c("Core", "Core on flake", "Flake", "Flake<5mm", "Blade", "Bladelet", 
+                      "Kombewa", "Debordant", "Siret", "Core trimming element", "Burin spall", "Chunk")
+  heatmap_data$DEBITAGE <- factor(heatmap_data$DEBITAGE, levels = debitage_order)
+  
+  ## Plot Heatmap with Blue Gradient and Text Labels
+  plot2 <- ggplot(heatmap_data, aes(x = `LOCATION OF CORTEX`, y = DEBITAGE, fill = Count)) +
+    geom_tile(color = "white") +
+    geom_text(aes(label = Count), color = "black", size = 4) +
+    scale_fill_gradient(low = "white", high = "blue") +
+    labs(title = paste("Heatmap of Debitage Type in Relation to Location of Cortex for Chert Types - Unit", unit),
+         x = "Location of Cortex", y = "Debitage Type", fill = "Count") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          panel.grid = element_blank())
+  
+  ## Print and Save Heatmap
+  print(plot2)
+  ggsave(filename = paste0(output_dir, "Unit_", unit, "_Debitage_Location_Cortex_Heatmap.png"), plot = plot2, width = 10, height = 7, bg = 'white')
+}
+```
+
+--- 
+End of the script
