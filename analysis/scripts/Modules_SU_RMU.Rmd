@@ -1,0 +1,133 @@
+---
+title: "Ararat_1_Cave_MF_RMU_all SU's"
+author: "David Nora"
+date: "2025-01-24"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Goal of the Script: The goal of the script is to analyze lithic data from the Ararat 1 Cave by creating visualizations that explore the relationship between different attributes (e.g., Raw material distance, and frequency of modules of retouch) at Ararat-1 Cave.
+
+## Load required libraries
+```{r warning=FALSE}
+library(readxl)
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+```
+
+## Load the dataset
+```{r warning=FALSE}
+file_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+
+# Read the Excel file for Ararat 1 Cave
+ararat_data <- read_excel(file_path)
+```
+
+## Define the raw material order specific to Ararat 1 Cave in a straight line (Km)
+```{r}
+raw_material_order_ararat <- c("Gegham", "Geghasar", "Geghasar-ar54", "Geghasar-1", "Geghasar-2", "Hatis",
+  "Hatis alpha", "Hatis beta", "Hatis gamma", "Hatis delta", "Gutansar",
+  "Tsaghk-ar64", "Tsaghk-2-ar60", "Tsaghk-2 ttavakar", "Sevkar", "Satanakar",
+  "Tsaghk-1 kamakar", "Tsaghk-3 damlik", "Pokr arteni", "Pokr arteni-1",
+  "Pokr arteni-2", "Mets arteni", "Meydan-dag", "Sarikamis", "Obsidian",
+  "Limestone", "Silicified limestone", "Chert", "Chert (brown)", "Chert (green)",
+  "Chert (red)", "Calcedony", "Sandstone", "Quartzite", "Metamorphic rock",
+  "Basalt", "Mafic lava", "Other")
+```
+
+## Clean the dataset
+```{r}
+# Filter relevant columns and remove rows with missing values
+ararat_filtered <- ararat_data[!is.na(ararat_data$Merged_UNITs) & 
+                                 !is.na(ararat_data$`MODULE OF RETOUCH`) & 
+                                 !is.na(ararat_data$RAWMAT), 
+                               c("Merged_UNITs", "MODULE OF RETOUCH", "RAWMAT")]
+
+# Filter relevant columns and remove rows with missing values
+ararat_filtered <- ararat_data[!is.na(ararat_data$Merged_UNITs) & 
+                                 !is.na(ararat_data$`MODULE OF RETOUCH`) & 
+                                 !is.na(ararat_data$RAWMAT), 
+                               c("Merged_UNITs", "MODULE OF RETOUCH", "RAWMAT")]
+
+# Function to create faceted bar plot for a specific merged unit
+create_faceted_plot <- function(unit, data, raw_material_order) {
+  # Filter the data for the specific merged unit
+  unit_data <- data[data$Merged_UNITs == unit, ]
+  
+  # Create a contingency table
+  pivot <- as.data.frame(table(unit_data$`MODULE OF RETOUCH`, unit_data$RAWMAT))
+  names(pivot) <- c("Module", "RawMaterial", "Count")
+  
+  # Filter only for existing raw materials in the defined order
+  pivot <- pivot[pivot$RawMaterial %in% raw_material_order, ]
+  
+  # Calculate percentages within each Module
+  pivot <- pivot %>%
+    group_by(Module) %>%
+    mutate(Percentage = Count / sum(Count) * 100) %>%
+    ungroup()
+  
+  # Remove rows with 0 counts to avoid 0% labels
+  pivot <- pivot %>%
+    filter(Count > 0)
+  
+  # Set the order of the raw materials
+  pivot$RawMaterial <- factor(pivot$RawMaterial, levels = raw_material_order)
+  
+  # Convert "Module" to a factor for faceting and coloring
+  pivot$Module <- factor(pivot$Module)
+  
+  # Create the faceted bar plot
+
+  ggplot(pivot, aes(x = Count, y = RawMaterial, fill = Module)) +
+    geom_bar(stat = "identity", position = "stack") +
+    geom_text(aes(label = paste0(Count, " (", round(Percentage, 1), "%)")),
+              position = position_stack(vjust = 0.5), hjust = -0.1, size = 5) +  # Add labels
+    labs(title = paste("Module Flakes per Raw Material - Merged Unit", unit),
+         x = "Count (N)", y = "Raw Material", fill = "Module") +
+    theme_minimal() +
+    scale_fill_manual(values = c("blue", "red", "gold", "green", "grey")) +  # Custom colors for Modules
+    scale_x_continuous(limits = c(0, 30), breaks = seq(0, 30, by = 5)) +  # Fix X-axis
+    facet_wrap(~ Module, scales = "free_x", nrow = 1) +  # Facet by Module
+    theme(
+      strip.text = element_text(size = 14),  # Facet labels font size
+      panel.spacing = unit(1, "lines"),
+      legend.text  = element_text(size = 14),
+      legend.title = element_text(size = 16),
+      axis.title.x = element_text(size = 12, face = "bold"),
+      axis.text.x  = element_text(angle = 0, hjust = 1, size = 10, face = "bold"),
+      axis.title.y = element_text(size = 14, face = "bold"),
+      axis.text.y  = element_text(size = 12, face = "bold") # Increase spacing between facets
+    )
+}
+```
+
+## Loop through all unique merged units, generate plots, and save
+```{r}
+output_directory <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data"
+unique_units <- unique(ararat_filtered$Merged_UNITs)
+unit_plots <- list()
+
+for (unit in unique_units) {
+  # Create the plot
+  plot <- create_faceted_plot(unit, ararat_filtered, raw_material_order_ararat)
+  
+  # Save the plot as a PNG file
+  file_name <- paste0(output_directory, "\\Module_Flakes_Unit_", unit, ".png")
+  ggsave(filename = file_name, plot = plot, width = 14, height = 6, bg = 'white', dpi = 300)
+  
+  # Store the plot in a list
+  unit_plots[[paste0("Unit_", unit)]] <- plot
+}
+
+# Optionally, display all plots
+for (plot_name in names(unit_plots)) {
+  print(unit_plots[[plot_name]])
+}
+```
+
+---
+End of the script

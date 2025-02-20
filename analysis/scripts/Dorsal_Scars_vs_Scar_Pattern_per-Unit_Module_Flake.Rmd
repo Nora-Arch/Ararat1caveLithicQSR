@@ -1,0 +1,134 @@
+---
+title: "Plots for the number of Dorsal and patterns of Module Flakes"
+author: "David Nora"
+date: "2025-01-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Goal of the Script: The goal of the script is to analyze lithic data from the Ararat 1 Cave by creating visualizations that explore the relationship between different attributes (e.g., scar patterns, number of dorsal scars, and modules of retouch) at Ararat-1 Cave.
+
+```{r}
+# Load required libraries
+library(readxl)
+library(ggplot2)
+library(dplyr)
+```
+
+## Load the dataset
+```{r warning=FALSE}
+file_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+
+# Read the Excel file for Ararat 1 Cave
+ararat_data <- read_excel(file_path)
+```
+
+## Filter relevant columns and remove all NA values
+```{r}
+ararat_filtered <- ararat_data %>%
+  filter(
+    !is.na(`SCAR PATTERN`) & 
+    !is.na(`NO DORSAL SCARS`) & 
+    !is.na(`MODULE OF RETOUCH`) &
+    !is.na(`Merged_UNITs`) &
+    !is.na(`Distance (km)`)
+  ) %>%
+  select(`SCAR PATTERN`, `NO DORSAL SCARS`, `MODULE OF RETOUCH`, `Merged_UNITs`, `Distance (km)`)
+
+# Remove unused levels from the 'SCAR PATTERN' factor
+ararat_filtered$`SCAR PATTERN` <- factor(ararat_filtered$`SCAR PATTERN`)
+
+# Define custom colors for the modules
+module_colors <- c("blue", "red", "yellow", "green", "grey")
+```
+
+## Create a box plot faceted by Module all Su's
+```{r warning=FALSE}
+DS_NO_MF <- ggplot(ararat_filtered, aes(x = `SCAR PATTERN`, y = `NO DORSAL SCARS`, fill = `MODULE OF RETOUCH`)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.7) +  # Box plot without outliers
+  geom_jitter(aes(color = `SCAR PATTERN`), width = 0.2, size = 1, alpha = 0.7, show.legend = FALSE) +  # Add jittered points
+  labs(title = "Box Plot of Number of Dorsal Scars by Scar Pattern all Units",
+       x = "Scar Pattern",
+       y = "Number of Dorsal Scars",
+       fill = "Module of Retouch") +
+  scale_fill_manual(values = module_colors) +  # Apply custom module colors
+  facet_wrap(~ `MODULE OF RETOUCH`, scales = "fixed", nrow = 1) +  # Use fixed scale across facets
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(size = 12),
+    panel.spacing = unit(1, "lines"),
+    legend.position = "top"
+  ) +
+  scale_y_continuous(limits = c(0, 25), breaks = seq(0, 25, by = 5))  # Set consistent y-axis limits and breaks
+
+# Print the plot
+print(DS_NO_MF)
+
+# Save the plot
+print("Saving plot for all units...")
+ggsave(
+  filename = "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\DS_MF_Merged_all_Units.png",
+  plot = DS_NO_MF,
+  width = 10,
+  height = 6,
+  dpi = 300,
+  bg = "white"
+)
+```
+
+## Function to create the plot for each Merged_UNIT (SU's)
+```{r}
+create_unit_plot <- function(unit) {
+  # Print the current unit being processed
+  print(paste("Creating plot for Merged Unit:", unit))
+  
+  # Filter data for the specific merged unit
+  unit_data <- ararat_filtered %>%
+    filter(`Merged_UNITs` == unit)  # Use the correct column name
+  
+  # Create the plot
+  plot <- ggplot(unit_data, aes(x = `SCAR PATTERN`, y = `NO DORSAL SCARS`, fill = `MODULE OF RETOUCH`)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.7) +  # Box plot without outliers
+    geom_jitter(aes(color = `SCAR PATTERN`), width = 0.2, size = 1, alpha = 0.7, show.legend = FALSE) +  # Add jittered points without legend
+    labs(title = paste("Box Plot of Number of Dorsal Scars by Scar Pattern - Merged Unit:", unit),
+         x = "Scar Pattern",
+         y = "Number of Dorsal Scars",
+         fill = "Module of Retouch") +
+    scale_fill_manual(values = module_colors) +  # Apply custom module colors
+    facet_wrap(~ `MODULE OF RETOUCH`, scales = "fixed", nrow = 1) +  # Use fixed scale across facets
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      strip.text = element_text(size = 12),
+      panel.spacing = unit(1, "lines"),
+      legend.position = "top"
+    ) +
+    scale_y_continuous(limits = c(0, 25), breaks = seq(0, 25, by = 5))  # Set consistent y-axis limits and breaks
+  
+  # Print before saving
+  print(plot)
+  print(paste("Saving plot for Merged Unit:", unit))
+  
+  # Save the plot
+  ggsave(
+    filename = paste0("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\DS_MF_Merged_Unit_", unit, ".png"),
+    plot = plot, width = 10, height = 6, dpi = 300, bg = 'white'
+  )
+}
+```
+
+## Save the plot for each Merged unit (SU's)
+```{r}
+# Generate and save plots for each Merged_UNIT
+for (unit in unique(ararat_filtered$`Merged_UNITs`)) {
+  create_unit_plot(unit)
+  print(paste("Plot saved for Merged Unit:", unit))  # Print after saving the plot
+}
+```
+
+--- 
+End of the script
