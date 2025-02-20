@@ -1,0 +1,88 @@
+---
+title: "Retouched Pieces width/length Obsidian vs. Non-Obsidian"
+author: "David Nora"
+date: "2024-11-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Goal of the script: This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the metrics technological length and width of the sedimentological units 3 and 4 by Obsidian and non-obsidian, as well the presence of retouched pieces at Ararat-1 Cave.
+
+## Load Required Libraries
+```{r warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(readxl)
+```
+
+## Load the dataset
+```{r warning=FALSE}
+data_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+Ararat_1_Cave <- read_excel(data_path)
+```
+
+## Prepare the data
+```{r}
+#remove non retouched typologies
+Ararat_1_Cave <- Ararat_1_Cave %>%
+  filter(!`TYPOLOGY A` %in% c("38. Naturally-backed knife", 
+                              "1. Typical Levallois flake", 
+                              "5. Pseudo-Levallois point"))
+
+# Ensure numerical conversion if they are not already and handle NAs
+Ararat_1_Cave$`TECHNOLOGICAL LENGTH` <- as.numeric(Ararat_1_Cave$`TECHNOLOGICAL LENGTH`)
+Ararat_1_Cave$`TECHNOLOGICAL WIDTH` <- as.numeric(Ararat_1_Cave$`TECHNOLOGICAL WIDTH`)
+
+# Create a column to indicate whether the data point is Typology A, handle NAs
+Ararat_1_Cave$Is_Typology_A <- ifelse(Ararat_1_Cave$`TYPOLOGY A` == "A", "Typology A", "Not Typology A")
+Ararat_1_Cave$Is_Typology_A[is.na(Ararat_1_Cave$`TYPOLOGY A`)] <- "NA"
+
+# Filter out rows with NA in key plotting columns if necessary
+Ararat_1_Cave <- Ararat_1_Cave %>%
+  filter(!is.na(`TECHNOLOGICAL LENGTH`) & !is.na(`TECHNOLOGICAL WIDTH`))
+```
+
+## Define the plot function
+```{r}
+plots <- list()
+for (unit in unique(Ararat_1_Cave$`Merged_UNITs`)) {
+  unit_data <- filter(Ararat_1_Cave, `Merged_UNITs` == unit)
+  plot_title <- paste("Unit", unit, ": Technological Length vs Width")
+  plots[[as.character(unit)]] <- ggplot(unit_data, aes(x = `TECHNOLOGICAL WIDTH`, y = `TECHNOLOGICAL LENGTH`, color = `Material Type`, shape = Is_Typology_A)) +
+    geom_point(alpha = 0.6, size = 4) +
+    scale_color_manual(values = c("Obsidian" = "red", "Non-Obsidian" = "blue")) +
+    scale_shape_manual(values = c("Typology A" = 17, "Not Typology A" = 16, "NA" = 21),
+                       labels = c("Typology A" = "Typology A", "Not Typology A" = "Yes", "NA" = "No")) +
+    labs(title = plot_title, x = "Technological Width (mm)", y = "Technological Length (mm)", shape = "Retouched Pieces") +
+   theme_minimal() +
+  theme(
+    axis.text.x    = element_text(angle = 0, hjust = 1),
+    legend.position = "right",
+    legend.text     = element_text(size = 16),
+    legend.title    = element_text(size = 18),
+    legend.key.size = unit(1.5, "lines"))
+}
+```
+
+## Print plots for each unit
+```{r}
+for (unit in names(plots)) {
+  print(plots[[unit]])
+}
+```
+
+##  Save the plots
+```{r}
+# Save plots for each unit
+output_dir <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\"
+for (unit in names(plots)) {
+  plot_path <- paste0(output_dir, "Unit_", unit, "_Technological_Length_vs_Width.png")
+  ggsave(filename = plot_path, plot = plots[[unit]], width = 8, height = 6, dpi = 300, bg = "white")
+}
+
+```
+---
+End of Script
