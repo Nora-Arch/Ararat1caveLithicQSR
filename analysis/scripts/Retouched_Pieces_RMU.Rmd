@@ -1,0 +1,130 @@
+---
+title: "Retouched pieces per SU"
+author: "David Nora"
+date: "2025-01-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Goal of the Script: The goal of the script is to analyze lithic data from the Ararat 1 Cave by creating visualizations that explore the relationship between retouched pieces, e.g., Raw material distance, and frequency of retouch pieces at Ararat-1 Cave.
+
+## Load Libraries
+```{r warning=FALSE}
+# Load required libraries
+library(readxl)
+library(ggplot2)
+library(dplyr)
+```
+
+## Load the dataset
+```{r warning=FALSE}
+file_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat_1_cave_lithic_analysis\\Raw data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+ararat_data <- read_excel(file_path)
+```
+
+## Define the raw material order specific to Ararat 1 Cave in a straight line (Km)
+```{r}
+raw_material_order_ararat <- c("Gegham", "Geghasar", "Geghasar-ar54", "Geghasar-1", "Geghasar-2", "Hatis",
+  "Hatis alpha", "Hatis beta", "Hatis gamma", "Hatis delta", "Gutansar",
+  "Tsaghk-ar64", "Tsaghk-2-ar60", "Tsaghk-2 ttavakar", "Sevkar", "Satanakar",
+  "Tsaghk-1 kamakar", "Tsaghk-3 damlik", "Pokr arteni", "Pokr arteni-1",
+  "Pokr arteni-2", "Mets arteni", "Meydan-dag", "Sarikamis", "Obsidian",
+  "Limestone", "Silicified limestone", "Chert", "Chert (brown)", "Chert (green)",
+  "Chert (red)", "Calcedony", "Sandstone", "Quartzite", "Metamorphic rock",
+  "Basalt", "Mafic lava", "Other")
+```
+
+# Filter relevant columns and remove rows with missing values
+```{r}
+ararat_data <- ararat_data %>%
+  filter(!`TYPOLOGY A` %in% c("38. Naturally-backed knife", 
+                              "1. Typical Levallois flake", 
+                              "5. Pseudo-Levallois point"))
+
+ararat_filtered <- ararat_data[!is.na(ararat_data$Merged_UNITs) & 
+                               !is.na(ararat_data$`TYPOLOGY A`) & 
+                               !is.na(ararat_data$RAWMAT), 
+                               c("Merged_UNITs", "TYPOLOGY A", "RAWMAT")]
+```
+
+## Create a function for bar plots
+```{r}
+create_typology_plot <- function(unit, data, raw_material_order) {
+  # Filter data for the specific merged unit
+  unit_data <- data[data$Merged_UNITs == unit, ]
+  
+  # Create a contingency table
+  pivot <- as.data.frame(table(unit_data$`TYPOLOGY A`, unit_data$RAWMAT))
+  names(pivot) <- c("Typology", "RawMaterial", "Count")
+  
+  # Filter raw materials based on the defined order
+  pivot <- pivot[pivot$RawMaterial %in% raw_material_order, ]
+  
+  # Remove rows with zero counts
+  pivot <- pivot[pivot$Count > 0, ]
+  
+  # Set raw material order
+  pivot$RawMaterial <- factor(pivot$RawMaterial, levels = raw_material_order)
+  
+  # Plot the bar chart
+  ggplot(pivot, aes(x = Count, y = RawMaterial, fill = Typology)) +
+    geom_bar(stat = "identity", position = "stack") +
+    geom_text(aes(label = Count), position = position_stack(vjust = 0.5), size = 3) +
+    labs(
+      title = paste("Raw Material Counts by Typology - Merged Unit", unit),
+      x = "Count", y = "Raw Material", fill = "Typology"
+    ) +
+    theme_minimal() +
+    scale_x_continuous(limits = c(0, 5), breaks = 0:5) +
+      theme(
+        axis.text.x   = element_text(angle = 0, hjust = 1, size = 14, face = "bold"),
+        axis.title.x  = element_text(size = 16),
+        axis.text.y   = element_text(size = 14, face = "bold"),
+        axis.title.y  = element_text(size = 16),
+        legend.text   = element_text(size = 16),
+        legend.title = element_text(size = 18),
+      strip.text = element_text(size = 12),
+      panel.spacing = unit(1, "lines"),
+      color = "Typology"
+    )
+}
+```
+
+```{r}
+# Define output directory and ensure it exists
+output_directory <- "C:/Users/David/OneDrive - huji.ac.il/Desktop/Archaeology/Publications/In_Proguess/PhD/QSR/Ararat_1_cave_lithic_analysis/Derived data"
+if (!dir.exists(output_directory)) {
+  dir.create(output_directory, recursive = TRUE)
+}
+
+# Loop through unique units and generate/save plots
+# Convert Merged_UNITs to character (in case they are factors)
+unique_units <- unique(as.character(ararat_filtered$Merged_UNITs))
+typology_plots <- list()
+
+for (unit in unique_units) {
+  # Create the plot
+  plot_obj <- create_typology_plot(unit, ararat_filtered, raw_material_order_ararat)
+  
+  # Save the plot as a PNG file
+  file_name <- paste0(output_directory, "/Typology_Unit_", unit, ".png")
+  ggsave(filename = file_name, plot = plot_obj, width = 12, height = 6, bg = "white", dpi = 300)
+  
+  # Store the plot in a list
+  typology_plots[[unit]] <- plot_obj
+}
+
+# (Optional) Print a message with the saved file names
+saved_files <- sapply(unique_units, function(unit) paste0("Typology_Unit_", unit, ".png"))
+cat("Saved files:\n", paste(saved_files, collapse = "\n"))
+```
+
+```{r}
+lapply(typology_plots,print)
+```
+
+---
+End of script 
