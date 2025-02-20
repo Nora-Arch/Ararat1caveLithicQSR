@@ -21,7 +21,7 @@ library(dplyr)
 
 ## Load the dataset
 ```{r warning=FALSE}
-file_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat_1_cave_lithic_analysis\\Raw data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+file_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
 ararat_data <- read_excel(file_path)
 ```
 
@@ -95,7 +95,7 @@ create_typology_plot <- function(unit, data, raw_material_order) {
 
 ```{r}
 # Define output directory and ensure it exists
-output_directory <- "C:/Users/David/OneDrive - huji.ac.il/Desktop/Archaeology/Publications/In_Proguess/PhD/QSR/Ararat_1_cave_lithic_analysis/Derived data"
+output_directory <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data"
 if (!dir.exists(output_directory)) {
   dir.create(output_directory, recursive = TRUE)
 }

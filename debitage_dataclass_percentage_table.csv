@@ -1,0 +1,150 @@
+"Merged_UNITs","DEBITAGE","DATACLASS","Frequency","Percentage"
+0,"Blade","Complete",2,100
+0,"Bladelet","Complete",6,75
+0,"Bladelet","Dist",1,12.5
+0,"Bladelet","Dist+prox",1,12.5
+0,"Burin spall","Prox",1,100
+0,"Core","Fragment",2,100
+0,"Flake","Complete",66,55.9322033898305
+0,"Flake","Prox",15,12.7118644067797
+0,"Flake","Dist",10,8.47457627118644
+0,"Flake","Fragment",9,7.6271186440678
+0,"Flake","Lat",7,5.93220338983051
+0,"Flake","Dist+prox",5,4.23728813559322
+0,"Flake","Prox + lat",3,2.54237288135593
+0,"Flake","Dist+lat",2,1.69491525423729
+0,"Flake","Both lat",1,0.847457627118644
+0,"Flake<5mm","Complete",41,63.0769230769231
+0,"Flake<5mm","Fragment",19,29.2307692307692
+0,"Flake<5mm","Prox",3,4.61538461538462
+0,"Flake<5mm","Both lat",1,1.53846153846154
+0,"Flake<5mm","Dist",1,1.53846153846154
+0,"Kombewa","Prox",4,57.1428571428571
+0,"Kombewa","Dist",1,14.2857142857143
+0,"Kombewa","Dist+prox",1,14.2857142857143
+0,"Kombewa","Prox + lat",1,14.2857142857143
+0,"Pebble","Complete",2,100
+1,"Blade","Complete",3,100
+1,"Bladelet","Complete",14,93.3333333333333
+1,"Bladelet","Prox",1,6.66666666666667
+1,"Burin spall","Complete",1,100
+1,"Core","Complete",3,75
+1,"Core","Fragment",1,25
+1,"Core on flake","Prox",1,100
+1,"Core trimming element","Prox",2,50
+1,"Core trimming element","Dist",1,25
+1,"Core trimming element","Lat",1,25
+1,"Debordant","Complete",1,100
+1,"Flake","Complete",139,57.9166666666667
+1,"Flake","Fragment",28,11.6666666666667
+1,"Flake","Dist",23,9.58333333333333
+1,"Flake","Prox",20,8.33333333333333
+1,"Flake","Lat",12,5
+1,"Flake","Dist+prox",11,4.58333333333333
+1,"Flake","Dist+lat",4,1.66666666666667
+1,"Flake","Prox + lat",3,1.25
+1,"Flake<5mm","Complete",50,63.2911392405063
+1,"Flake<5mm","Fragment",20,25.3164556962025
+1,"Flake<5mm","Prox",5,6.32911392405063
+1,"Flake<5mm","Dist",3,3.79746835443038
+1,"Flake<5mm","Dist+lat",1,1.26582278481013
+1,"Kombewa","Prox",8,40
+1,"Kombewa","Complete",4,20
+1,"Kombewa","Lat",4,20
+1,"Kombewa","Dist+prox",2,10
+1,"Kombewa","Dist",1,5
+1,"Kombewa","Fragment",1,5
+1,"Siret","Complete",1,100
+2,"Blade","Complete",3,100
+2,"Bladelet","Complete",4,57.1428571428571
+2,"Bladelet","Dist",2,28.5714285714286
+2,"Bladelet","Dist+prox",1,14.2857142857143
+2,"Core","Fragment",1,50
+2,"Core","Prox",1,50
+2,"Core on flake","Complete",1,100
+2,"Core trimming element","Complete",2,100
+2,"Debordant","Complete",2,66.6666666666667
+2,"Debordant","Prox",1,33.3333333333333
+2,"Flake","Complete",74,57.3643410852713
+2,"Flake","Prox",20,15.5038759689922
+2,"Flake","Dist",15,11.6279069767442
+2,"Flake","Fragment",8,6.2015503875969
+2,"Flake","Lat",4,3.10077519379845
+2,"Flake","Prox + lat",3,2.32558139534884
+2,"Flake","Dist+lat",2,1.55038759689922
+2,"Flake","Dist+prox",2,1.55038759689922
+2,"Flake","Both lat",1,0.775193798449612
+2,"Flake<5mm","Complete",2,50
+2,"Flake<5mm","Fragment",2,50
+2,"Kombewa","Complete",4,66.6666666666667
+2,"Kombewa","Dist",2,33.3333333333333
+2,"Siret","Complete",2,100
+3,"Blade","Complete",7,58.3333333333333
+3,"Blade","Prox",3,25
+3,"Blade","Dist",2,16.6666666666667
+3,"Bladelet","Complete",11,84.6153846153846
+3,"Bladelet","Dist",2,15.3846153846154
+3,"Burin spall","Complete",4,100
+3,"Core","Complete",3,50
+3,"Core","Fragment",3,50
+3,"Core on flake","Complete",2,100
+3,"Core trimming element","Complete",2,33.3333333333333
+3,"Core trimming element","Dist",1,16.6666666666667
+3,"Core trimming element","Lat",1,16.6666666666667
+3,"Core trimming element","Prox",1,16.6666666666667
+3,"Core trimming element","Prox + lat",1,16.6666666666667
+3,"Debordant","Complete",2,66.6666666666667
+3,"Debordant","Fragment",1,33.3333333333333
+3,"Flake","Complete",278,61.0989010989011
+3,"Flake","Prox",48,10.5494505494505
+3,"Flake","Fragment",37,8.13186813186813
+3,"Flake","Dist",35,7.69230769230769
+3,"Flake","Lat",23,5.05494505494505
+3,"Flake","Prox + lat",15,3.2967032967033
+3,"Flake","Dist+prox",11,2.41758241758242
+3,"Flake","Dist+lat",8,1.75824175824176
+3,"Flake<5mm","Complete",70,62.5
+3,"Flake<5mm","Fragment",28,25
+3,"Flake<5mm","Prox",12,10.7142857142857
+3,"Flake<5mm","Dist+prox",2,1.78571428571429
+3,"Kombewa","Complete",14,50
+3,"Kombewa","Fragment",3,10.7142857142857
+3,"Kombewa","Lat",3,10.7142857142857
+3,"Kombewa","Prox",3,10.7142857142857
+3,"Kombewa","Dist",2,7.14285714285714
+3,"Kombewa","Dist+prox",2,7.14285714285714
+3,"Kombewa","Prox + lat",1,3.57142857142857
+3,"Pebble","Complete",3,100
+3,"Siret","Complete",2,66.6666666666667
+3,"Siret","Dist",1,33.3333333333333
+4,"Blade","Complete",2,66.6666666666667
+4,"Blade","Dist",1,33.3333333333333
+4,"Bladelet","Complete",9,64.2857142857143
+4,"Bladelet","Dist+prox",2,14.2857142857143
+4,"Bladelet","Prox",2,14.2857142857143
+4,"Bladelet","Dist",1,7.14285714285714
+4,"Burin spall","Complete",4,100
+4,"Core trimming element","Complete",1,100
+4,"Flake","Complete",155,64.5833333333333
+4,"Flake","Prox",25,10.4166666666667
+4,"Flake","Fragment",18,7.5
+4,"Flake","Lat",14,5.83333333333333
+4,"Flake","Dist",12,5
+4,"Flake","Prox + lat",7,2.91666666666667
+4,"Flake","Dist+prox",5,2.08333333333333
+4,"Flake","Dist+lat",3,1.25
+4,"Flake","Both lat",1,0.416666666666667
+4,"Flake<5mm","Complete",44,70.9677419354839
+4,"Flake<5mm","Fragment",9,14.5161290322581
+4,"Flake<5mm","Dist",4,6.45161290322581
+4,"Flake<5mm","Prox",4,6.45161290322581
+4,"Flake<5mm","Prox + lat",1,1.61290322580645
+4,"Kombewa","Fragment",4,22.2222222222222
+4,"Kombewa","Prox",4,22.2222222222222
+4,"Kombewa","Complete",3,16.6666666666667
+4,"Kombewa","Dist+prox",3,16.6666666666667
+4,"Kombewa","Lat",2,11.1111111111111
+4,"Kombewa","Prox + lat",2,11.1111111111111
+4,"Pebble","Complete",3,75
+4,"Pebble","Fragment",1,25
+4,"Siret","Lat",1,100

@@ -11,7 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #Goal of the script: This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the debitage per SU in percentages of the artefacts at Ararat-1 Cave.
 
-
 ## Load the Packages
 ```{r warning=FALSE}
 

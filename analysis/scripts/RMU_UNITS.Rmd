@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#Goal of the script: This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the raw materials distrubution across the sedimentological units of Ararat-1 Cave.
+#Goal of the script: This script is part of the paper "The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave". The data present in this script represent the raw materials distrubution across the sedimentological units at Ararat-1 Cave.
 
 ## Load Packages
 ```{r warning=FALSE}

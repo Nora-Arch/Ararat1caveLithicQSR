@@ -1,0 +1,87 @@
+---
+title: "Dorsal Scars vs. Scar Pattern"
+author: "David Nora"
+date: "2024-11-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+##Goal of the script: This script is part of the paper “The Role of Lithic Technology in Shaping Mobility and Decision-Making: The Case of Ararat-1 Cave”. The data present in this script generates boxplots of the number of dorsal scars versus scar patterns of the debitage for each SU, filter by Obsidian vs. non-Obsidian.
+
+## Load required libraries
+```{r warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(readxl)
+```
+
+## Load the dataset
+```{r warning=FALSE}
+data_path <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\raw_data\\Lithic_Attribute_Analysis_Ararat_1_CaveQSR.xlsx"
+Ararat_1_Cave <- read_excel(data_path)
+```
+
+## Filter the data to remove rows with missing values in key columns
+```{r}
+Ararat_1_Cave_filtered <- Ararat_1_Cave %>% 
+  filter(
+    !is.na(`NO DORSAL SCARS`) & 
+    !is.na(`SCAR PATTERN`) & 
+    !is.na(`Merged_UNITs`) &
+    !is.na(`Material Type`)
+  )
+```
+
+## Generate boxplots for each Merged Unit and Material Type and save
+```{r}
+output_dir <- "C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\"
+plots <- list()
+for (unit in unique(Ararat_1_Cave_filtered$Merged_UNITs)) {
+  for (material in unique(Ararat_1_Cave_filtered$`Material Type`)) {
+    subset_data <- Ararat_1_Cave_filtered %>%
+      filter(Merged_UNITs == unit, `Material Type` == material)
+    
+    # Plot
+    plot_title <- paste(material, "in Unit", unit, ": Number of Dorsal Scars per Scar Pattern")
+    plot <- ggplot(subset_data, aes(x = `SCAR PATTERN`, y = `NO DORSAL SCARS`, fill = `SCAR PATTERN`)) +
+      geom_boxplot() +
+      labs(title = plot_title, x = "Scar Pattern", y = "Number of Dorsal Scars") +
+      theme_minimal() +
+      theme(
+        axis.text.x   = element_text(size = 12, face = "bold", angle = 45, hjust = 1),
+        axis.title.x  = element_text(size = 16),
+        axis.text.y   = element_text(size = 14, face = "bold"),
+        axis.title.y  = element_text(size = 16),
+        legend.text   = element_text(size = 16),
+        legend.title = element_text(size = 18)
+      ) +
+      scale_fill_brewer(palette = "Set3")
+    
+    plots[[paste(unit, material)]] <- plot
+    
+    # Save the plot
+    plot_filename <- paste0(output_dir, "Unit_", unit, "_", gsub(" ", "_", material), "_DorsalScars_Boxplot.png")
+    ggsave(filename = plot_filename, plot = plot, width = 14, height = 10, dpi = 300, bg = 'white')
+  }
+}
+```
+
+# Print the generated plots
+```{r}
+print(plots[["0 Obsidian"]])
+print(plots[["0 Non-Obsidian"]])
+print(plots[["1 Obsidian"]])
+print(plots[["1 Non-Obsidian"]])
+print(plots[["2 Obsidian"]])
+print(plots[["2 Non-Obsidian"]])
+print(plots[["3 Obsidian"]])
+print(plots[["3 Non-Obsidian"]])
+print(plots[["4 Obsidian"]])
+print(plots[["4 Non-Obsidian"]])
+```
+
+---
+End of the script
