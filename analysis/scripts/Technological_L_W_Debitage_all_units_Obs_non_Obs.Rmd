@@ -70,6 +70,6 @@ print(P)
 ```{r warning=FALSE}
 ggsave("C:\\Users\\David\\OneDrive - huji.ac.il\\Desktop\\Archaeology\\Publications\\In_Proguess\\PhD\\QSR\\Ararat1caveLithicQSR\\analysis\\data\\derived_data\\plot_debita_Obsidian_nonObsidian.png0_debitage_.png", plot = P, width = 14, height = 8, dpi = 300, bg = 'white')
 ```
- 
+
 ---
 End of the script
